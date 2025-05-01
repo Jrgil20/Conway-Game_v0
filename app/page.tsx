@@ -1,3 +1,5 @@
+"use client"
+
 import { EmbeddableGameOfLife } from "@/components/embeddable-game-of-life"
 
 export default function Home() {
@@ -6,10 +8,8 @@ export default function Home() {
       <div className="z-10 w-full max-w-5xl items-center justify-between font-mono text-sm">
         <h1 className="text-4xl font-bold text-center mb-8">Conway&apos;s Game of Life</h1>
 
-        {/* Embedded Game of Life */}
-        <div className="border rounded-lg shadow-lg overflow-hidden">
-          <EmbeddableGameOfLife width="100%" height="600px" initialGridSize={25} />
-        </div>
+        {/* Juego de la Vida sin ventana encapsuladora */}
+        <EmbeddableGameOfLife width="100%" height="600px" initialGridSize={25} />
 
         <div className="mt-8 text-center text-gray-600">
           <p>

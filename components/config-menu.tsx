@@ -1,7 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { Settings, RefreshCw, Maximize, Minimize, ChevronRight } from "lucide-react"
+import { useState, useEffect } from "react"
+import { Settings, RefreshCw, Maximize, Minimize, ChevronRight, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -27,6 +27,8 @@ type ConfigMenuProps = {
   showPatterns: boolean
   setShowPatterns: (show: boolean) => void
   addCustomPattern?: (pattern: number[][], name: string) => void
+  speed: number
+  setSpeed: (speed: number) => void
 }
 
 export function ConfigMenu({
@@ -39,8 +41,11 @@ export function ConfigMenu({
   showPatterns,
   setShowPatterns,
   addCustomPattern,
+  speed,
+  setSpeed,
 }: ConfigMenuProps) {
   const [isPatternEditorOpen, setIsPatternEditorOpen] = useState(false)
+  const [speedInput, setSpeedInput] = useState<string>(Math.round(1000 / speed).toString())
 
   const openPatternEditor = () => {
     setIsPatternEditorOpen(true)
@@ -59,8 +64,78 @@ export function ConfigMenu({
     closePatternEditor()
   }
 
+  const handleSpeedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSpeedInput(e.target.value)
+  }
+
+  const handleSpeedBlur = () => {
+    const genPerSec = parseInt(speedInput, 10);
+    if (!isNaN(genPerSec) && genPerSec > 0) {
+      const newSpeed = Math.round(1000 / genPerSec);
+      if (newSpeed >= 50 && newSpeed <= 500) {
+        setSpeed(newSpeed);
+      } else if (newSpeed < 50) {
+        setSpeed(50);
+        setSpeedInput("20"); // 1000/50 = 20 gen/seg
+      } else {
+        setSpeed(500);
+        setSpeedInput("2"); // 1000/500 = 2 gen/seg
+      }
+    } else {
+      setSpeedInput(Math.round(1000 / speed).toString());
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSpeedBlur();
+    }
+  }
+  
+  // Actualizar el campo de entrada cuando cambie la velocidad del juego
+  useEffect(() => {
+    setSpeedInput(Math.round(1000 / speed).toString());
+  }, [speed]);
+
   return (
     <>
+      {/* Botón de Acciones */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" disabled={isRunning} className="flex items-center gap-2">
+            <RefreshCw className="h-4 w-4" />
+            Acciones
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56">
+          <DropdownMenuLabel>Acciones del Juego</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem onClick={randomizeGrid} disabled={isRunning}>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              <span>Aleatorio</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={initializeGrid} disabled={isRunning}>
+              <Play className="mr-2 h-4 w-4 rotate-90" />
+              <span>Limpiar Tablero</span>
+            </DropdownMenuItem>
+            
+            <DropdownMenuSeparator />
+            
+            <DropdownMenuItem onClick={() => setShowPatterns(!showPatterns)}>
+              <ChevronRight className="mr-2 h-4 w-4" />
+              <span>{showPatterns ? "Ocultar Patrones" : "Mostrar Patrones"}</span>
+            </DropdownMenuItem>
+            
+            <DropdownMenuItem onClick={openPatternEditor} disabled={isRunning}>
+              <span className="mr-2">✏️</span>
+              <span>Crear Patrón Personalizado</span>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* Botón de Configuración */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" disabled={isRunning} className="flex items-center gap-2">
@@ -97,35 +172,54 @@ export function ConfigMenu({
               </DropdownMenuPortal>
             </DropdownMenuSub>
 
+            <DropdownMenuSeparator />
+
             <DropdownMenuSub>
               <DropdownMenuSubTrigger>
-                <RefreshCw className="mr-2 h-4 w-4" />
-                <span>Acciones</span>
+                <span className="mr-2">⏱️</span>
+                <span>Velocidad</span>
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
                 <DropdownMenuSubContent>
-                  <DropdownMenuItem onClick={randomizeGrid} disabled={isRunning}>
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    <span>Aleatorio</span>
+                  <DropdownMenuItem 
+                    onClick={() => setSpeed(Math.min(speed + 50, 500))} 
+                    disabled={isRunning || speed >= 500}
+                  >
+                    <span className="mr-2">🐢</span>
+                    <span>Más lento</span>
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={initializeGrid} disabled={isRunning}>
-                    <span>Limpiar Tablero</span>
+                  <DropdownMenuItem 
+                    onClick={() => setSpeed(Math.max(speed - 50, 50))} 
+                    disabled={isRunning || speed <= 50}
+                  >
+                    <span className="mr-2">🐇</span>
+                    <span>Más rápido</span>
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <div className="px-2 py-1.5 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span>Velocidad actual:</span>
+                      <span className="font-medium">{Math.round(1000 / speed)} gen/seg</span>
+                    </div>
+                    <div className="mt-2">
+                      <label htmlFor="speed-input" className="block text-xs mb-1">Velocidad (gen/seg):</label>
+                      <input
+                        id="speed-input"
+                        type="number"
+                        min="2"
+                        max="20"
+                        className="w-full px-2 py-1 border rounded text-sm"
+                        value={speedInput}
+                        onChange={handleSpeedChange}
+                        onBlur={handleSpeedBlur}
+                        onKeyDown={handleKeyDown}
+                        disabled={isRunning}
+                      />
+                    </div>
+                  </div>
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
             </DropdownMenuSub>
-
-            <DropdownMenuItem onClick={() => setShowPatterns(!showPatterns)}>
-              <ChevronRight className="mr-2 h-4 w-4" />
-              <span>{showPatterns ? "Ocultar Patrones" : "Mostrar Patrones"}</span>
-            </DropdownMenuItem>
-
-            <DropdownMenuSeparator />
-
-            <DropdownMenuItem onClick={openPatternEditor} disabled={isRunning}>
-              <span className="mr-2">✏️</span>
-              <span>Crear Patrón Personalizado</span>
-            </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -335,46 +335,9 @@ export function EmbeddableGameOfLife({
             showPatterns={showPatterns}
             setShowPatterns={setShowPatterns}
             addCustomPattern={addCustomPattern}
+            speed={speed}
+            setSpeed={setSpeed}
           />
-        </div>
-
-        <div className="flex items-center gap-4 flex-wrap justify-center">
-          <span className="text-sm">Velocidad:</span>
-          <div className="flex items-center gap-2">
-            <button
-              className={`w-8 h-8 border rounded ${
-                isRunning || speed >= 500 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-100"
-              }`}
-              onClick={() => setSpeed(Math.min(speed + 50, 500))}
-              disabled={isRunning || speed >= 500}
-            >
-              -
-            </button>
-            <input
-              type="number"
-              className="w-16 h-8 px-2 border rounded text-center"
-              value={Math.round(1000 / speed)}
-              onChange={(e) => {
-                const genPerSec = Number.parseInt(e.target.value, 10)
-                if (!isNaN(genPerSec) && genPerSec > 0 && genPerSec <= 20) {
-                  setSpeed(Math.round(1000 / genPerSec))
-                }
-              }}
-              min="1"
-              max="20"
-              disabled={isRunning}
-            />
-            <button
-              className={`w-8 h-8 border rounded ${
-                isRunning || speed <= 50 ? "opacity-50 cursor-not-allowed" : "hover:bg-gray-100"
-              }`}
-              onClick={() => setSpeed(Math.max(speed - 50, 50))}
-              disabled={isRunning || speed <= 50}
-            >
-              +
-            </button>
-            <span className="text-sm">gen/seg</span>
-          </div>
         </div>
 
         <div className="flex items-center gap-2 justify-center">
