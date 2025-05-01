@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Settings, RefreshCw, Maximize, Minimize, ChevronRight, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -45,6 +45,7 @@ export function ConfigMenu({
   setSpeed,
 }: ConfigMenuProps) {
   const [isPatternEditorOpen, setIsPatternEditorOpen] = useState(false)
+  const [speedInput, setSpeedInput] = useState<string>(Math.round(1000 / speed).toString())
 
   const openPatternEditor = () => {
     setIsPatternEditorOpen(true)
@@ -62,6 +63,39 @@ export function ConfigMenu({
     }
     closePatternEditor()
   }
+
+  const handleSpeedChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSpeedInput(e.target.value)
+  }
+
+  const handleSpeedBlur = () => {
+    const genPerSec = parseInt(speedInput, 10);
+    if (!isNaN(genPerSec) && genPerSec > 0) {
+      const newSpeed = Math.round(1000 / genPerSec);
+      if (newSpeed >= 50 && newSpeed <= 500) {
+        setSpeed(newSpeed);
+      } else if (newSpeed < 50) {
+        setSpeed(50);
+        setSpeedInput("20"); // 1000/50 = 20 gen/seg
+      } else {
+        setSpeed(500);
+        setSpeedInput("2"); // 1000/500 = 2 gen/seg
+      }
+    } else {
+      setSpeedInput(Math.round(1000 / speed).toString());
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSpeedBlur();
+    }
+  }
+  
+  // Actualizar el campo de entrada cuando cambie la velocidad del juego
+  useEffect(() => {
+    setSpeedInput(Math.round(1000 / speed).toString());
+  }, [speed]);
 
   return (
     <>
@@ -166,6 +200,21 @@ export function ConfigMenu({
                     <div className="flex items-center justify-between">
                       <span>Velocidad actual:</span>
                       <span className="font-medium">{Math.round(1000 / speed)} gen/seg</span>
+                    </div>
+                    <div className="mt-2">
+                      <label htmlFor="speed-input" className="block text-xs mb-1">Velocidad (gen/seg):</label>
+                      <input
+                        id="speed-input"
+                        type="number"
+                        min="2"
+                        max="20"
+                        className="w-full px-2 py-1 border rounded text-sm"
+                        value={speedInput}
+                        onChange={handleSpeedChange}
+                        onBlur={handleSpeedBlur}
+                        onKeyDown={handleKeyDown}
+                        disabled={isRunning}
+                      />
                     </div>
                   </div>
                 </DropdownMenuSubContent>
