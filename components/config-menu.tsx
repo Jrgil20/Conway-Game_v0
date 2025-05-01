@@ -27,6 +27,8 @@ type ConfigMenuProps = {
   showPatterns: boolean
   setShowPatterns: (show: boolean) => void
   addCustomPattern?: (pattern: number[][], name: string) => void
+  speed: number
+  setSpeed: (speed: number) => void
 }
 
 export function ConfigMenu({
@@ -39,6 +41,8 @@ export function ConfigMenu({
   showPatterns,
   setShowPatterns,
   addCustomPattern,
+  speed,
+  setSpeed,
 }: ConfigMenuProps) {
   const [isPatternEditorOpen, setIsPatternEditorOpen] = useState(false)
 
@@ -130,6 +134,40 @@ export function ConfigMenu({
                       Tamaño actual: {gridSize}x{gridSize}
                     </span>
                   </DropdownMenuItem>
+                </DropdownMenuSubContent>
+              </DropdownMenuPortal>
+            </DropdownMenuSub>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuSub>
+              <DropdownMenuSubTrigger>
+                <span className="mr-2">⏱️</span>
+                <span>Velocidad</span>
+              </DropdownMenuSubTrigger>
+              <DropdownMenuPortal>
+                <DropdownMenuSubContent>
+                  <DropdownMenuItem 
+                    onClick={() => setSpeed(Math.min(speed + 50, 500))} 
+                    disabled={isRunning || speed >= 500}
+                  >
+                    <span className="mr-2">🐢</span>
+                    <span>Más lento</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem 
+                    onClick={() => setSpeed(Math.max(speed - 50, 50))} 
+                    disabled={isRunning || speed <= 50}
+                  >
+                    <span className="mr-2">🐇</span>
+                    <span>Más rápido</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <div className="px-2 py-1.5 text-sm">
+                    <div className="flex items-center justify-between">
+                      <span>Velocidad actual:</span>
+                      <span className="font-medium">{Math.round(1000 / speed)} gen/seg</span>
+                    </div>
+                  </div>
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
             </DropdownMenuSub>
