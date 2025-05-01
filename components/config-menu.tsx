@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Settings, RefreshCw, Maximize, Minimize, ChevronRight } from "lucide-react"
+import { Settings, RefreshCw, Maximize, Minimize, ChevronRight, Play } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -61,6 +61,43 @@ export function ConfigMenu({
 
   return (
     <>
+      {/* Botón de Acciones */}
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="outline" disabled={isRunning} className="flex items-center gap-2">
+            <RefreshCw className="h-4 w-4" />
+            Acciones
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent className="w-56">
+          <DropdownMenuLabel>Acciones del Juego</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem onClick={randomizeGrid} disabled={isRunning}>
+              <RefreshCw className="mr-2 h-4 w-4" />
+              <span>Aleatorio</span>
+            </DropdownMenuItem>
+            <DropdownMenuItem onClick={initializeGrid} disabled={isRunning}>
+              <Play className="mr-2 h-4 w-4 rotate-90" />
+              <span>Limpiar Tablero</span>
+            </DropdownMenuItem>
+            
+            <DropdownMenuSeparator />
+            
+            <DropdownMenuItem onClick={() => setShowPatterns(!showPatterns)}>
+              <ChevronRight className="mr-2 h-4 w-4" />
+              <span>{showPatterns ? "Ocultar Patrones" : "Mostrar Patrones"}</span>
+            </DropdownMenuItem>
+            
+            <DropdownMenuItem onClick={openPatternEditor} disabled={isRunning}>
+              <span className="mr-2">✏️</span>
+              <span>Crear Patrón Personalizado</span>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+
+      {/* Botón de Configuración */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button variant="outline" disabled={isRunning} className="flex items-center gap-2">
@@ -96,36 +133,6 @@ export function ConfigMenu({
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
             </DropdownMenuSub>
-
-            <DropdownMenuSub>
-              <DropdownMenuSubTrigger>
-                <RefreshCw className="mr-2 h-4 w-4" />
-                <span>Acciones</span>
-              </DropdownMenuSubTrigger>
-              <DropdownMenuPortal>
-                <DropdownMenuSubContent>
-                  <DropdownMenuItem onClick={randomizeGrid} disabled={isRunning}>
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    <span>Aleatorio</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={initializeGrid} disabled={isRunning}>
-                    <span>Limpiar Tablero</span>
-                  </DropdownMenuItem>
-                </DropdownMenuSubContent>
-              </DropdownMenuPortal>
-            </DropdownMenuSub>
-
-            <DropdownMenuItem onClick={() => setShowPatterns(!showPatterns)}>
-              <ChevronRight className="mr-2 h-4 w-4" />
-              <span>{showPatterns ? "Ocultar Patrones" : "Mostrar Patrones"}</span>
-            </DropdownMenuItem>
-
-            <DropdownMenuSeparator />
-
-            <DropdownMenuItem onClick={openPatternEditor} disabled={isRunning}>
-              <span className="mr-2">✏️</span>
-              <span>Crear Patrón Personalizado</span>
-            </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
